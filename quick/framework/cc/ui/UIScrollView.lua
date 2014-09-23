@@ -807,18 +807,16 @@ scrollView的填充方法，可以自动把一个table里的node有序的填充�
 ~~~ lua
 
 --填充100个相同大小的图片。
-    local view =  cc.ui.UIScrollView.new({viewRect=cc.rect(0,0,display.width,display.height),direction=2})
-    self:addChild(view)
-    local t = {}
+    local view =  cc.ui.UIScrollView.new({viewRect=cc.rect(100,100,display.width,display.height),direction=2});
+    print(view:getContentSize().height)
+    self:addChild(view);
+    local t = {};
     for i = 1, 100 do
-      local png  = cc.ui.UIImage.new("box_bai.png")
-      t[#t+1] = png
-      cc.ui.UILabel.new({text = i, size = 24, color = cc.c3b(100,100,100)})
-      :align(display.CENTER, png:getContentSize().width/2, png:getContentSize().height/2):addTo(png)
+        local png  = cc.ui.UIImage.new("box_bai.png");
+        t[#t+1] = png;
+        cc.ui.UILabel.new({text = i, size = 24, color = cc.c3b(100,100,100)}):align(display.CENTER, W(png)/2, H(png)/2):addTo(png);
     end
---填充scrollview，参数itemSize为填充项的大小(填充项大小必须相同)
-    view:fill(t,{itemSize=cc.size((t[#t]):getContentSize())})
-
+    view:fill(t,{itemSize=SIZE(t[#t])});
 ~~~
 
 注意：参数nodes 是table结构，且一定要是{node1,node2,node3,...}不能是{a=node1,b=node2,c=node3,...}
@@ -828,7 +826,7 @@ scrollView的填充方法，可以自动把一个table里的node有序的填充�
 
 ]]
 
-function UIScrollView:fill(nodes,params)
+function cc.ui.UIScrollView:fill(nodes,params)
   --参数的继承用法,把param2的参数增加覆盖到param1中。
   local extend = function(param1,param2)
     if not param2 then
@@ -882,18 +880,18 @@ function UIScrollView:fill(nodes,params)
 
     --自动布局
     if params.autoTable then
-      params.cellCount = math.floor(W(self) / params.itemSize.width)
+      params.cellCount = math.floor(self.viewRect_.width / params.itemSize.width)
     end
 
     --自动间隔
     if params.autoGap then
-      params.widthGap = (W(self) - (params.cellCount * params.itemSize.width)) / (params.cellCount + 1)
+      params.widthGap = (self.viewRect_.width - (params.cellCount * params.itemSize.width)) / (params.cellCount + 1)
       params.heightGap = params.widthGap
     end
 
     --填充量
     params.rowCount = math.ceil(#nodes / params.cellCount)
-    S_SIZE(innerContainer , W(self) , (params.itemSize.height + params.heightGap) * params.rowCount + params.heightGap)
+    S_SIZE(innerContainer , self.viewRect_.width , (params.itemSize.height + params.heightGap) * params.rowCount + params.heightGap)
 
     for i = 1 , #nodes do
 
@@ -911,26 +909,20 @@ function UIScrollView:fill(nodes,params)
       n:addTo(innerContainer)
 
     end
-
-    local x, y = innerContainer:getPosition()
-	local size = innerContainer:getContentSize()
-	local disY = self.viewRect_.height - size.height
-	y = y + disY
-	S_XY(innerContainer, x, y)
     --如果是横向布局
     --  elseif(self.direction==cc.ui.UIScrollView.DIRECTION_HORIZONTAL) then
   else
     if params.autoTable then
-      params.rowCount = math.floor(H(self) / params.itemSize.height)
+      params.rowCount = math.floor(self.viewRect_.height / params.itemSize.height)
     end
 
     if params.autoGap then
-      params.heightGap = (H(self) - (params.rowCount * params.itemSize.height)) / (params.rowCount + 1)
+      params.heightGap = (self.viewRect_.height - (params.rowCount * params.itemSize.height)) / (params.rowCount + 1)
       params.widthGap = params.heightGap
     end
 
     params.cellCount = math.ceil(#nodes / params.rowCount)
-    S_SIZE(innerContainer ,(params.itemSize.width + params.widthGap) * params.cellCount + params.widthGap ,H(self))
+    S_SIZE(innerContainer ,(params.itemSize.width + params.widthGap) * params.cellCount + params.widthGap ,self.viewRect_.height)
 
     for i = 1, #nodes do
 
